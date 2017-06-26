@@ -11,12 +11,7 @@ bool bInitHash = false;
 /* FILL YOUR OWN IMPLEMENTATION HERE! */
 entry *findName(char lastname[], entry *pHead)
 {
-    while (pHead != NULL) {
-        if (strcasecmp(lastname, pHead->lastName) == 0)
-            return pHead;
-        pHead = pHead->pNext;
-    }
-    return NULL;
+    return FIND_FROM_HASH_TABLE(lastname);
 }
 
 entry *append(char lastName[], entry *e)
@@ -30,7 +25,7 @@ entry *append(char lastName[], entry *e)
     e = e->pNext;
     strcpy(e->lastName, lastName);
     e->pNext = NULL;
-    UPDATE_HASH_TABLE(lastName);
+    UPDATE_HASH_TABLE(e);
 
     return e;
 }
@@ -72,36 +67,74 @@ int find_next_avilable_before(int nLast)
     return nLast;
 }
 
-void UPDATE_HASH_TABLE(char *str)
+int GET_HASH_REF_TO(nFirstLayer){
+    return HASH_TABLE[nFirstLayer].ref_to;
+}
+
+void SET_HASH_REF_TO(int nIdx){
+    HASH_TABLE[nIdx].ref_to  = find_next_avilable_before(nIdx);
+}
+
+entry* FIND_FROM_HASH_TABLE(char *str)
 {
     int nFirstLayer = HASH_FUNCTION_FROM_STR_TO_INT(str);
+    HASH_ENTRY FindEntry= HASH_TABLE[nFirstLayer];
+    struct __HASH_ENTRY *pNext = FindEntry.pNext;
+    while(pNext != NULL)
+    {
+        // printf("yeah null1 L:(\n");
+        if (strcmp(pNext->Name, str) == 0)
+        {
+            // printf("find that\n!!");
+            return pNext->pAddr;
+        }
+        pNext = pNext->pNext;
+    }
+    int nRef_to = HASH_TABLE[nFirstLayer].ref_to;
+    pNext = HASH_TABLE[nRef_to].pNext;
+
+    while(pNext != NULL)
+    {
+        // printf("yeah null2 L:(\n");
+        if (strcmp(pNext->Name, str) == 0)
+            return pNext->pAddr;
+        pNext = pNext->pNext;
+    }
+    // printf("yeah null L:(\n");
+    entry* p  = NULL;
+    return p;
+}
+
+void UPDATE_HASH_TABLE(entry* pEntry)
+{
+    int nFirstLayer = HASH_FUNCTION_FROM_STR_TO_INT(pEntry->lastName);
 
     if(HASH_TABLE[nFirstLayer].pNext ==NULL){
         HASH_TABLE[nFirstLayer].pNext = (HASH_ENTRY *) malloc(sizeof(HASH_ENTRY));
-        HASH_TABLE[nFirstLayer].pNext->pNext = NULL;
-        strcpy(HASH_TABLE[nFirstLayer].pNext->Name, str);
-        HASH_TABLE[nFirstLayer].refCount++;
-    }
+        HASH_ENTRY* new_entry = HASH_TABLE[nFirstLayer].pNext;
 
+        new_entry->pNext = NULL;
+        strcpy(new_entry->Name, pEntry->lastName);
+        HASH_TABLE[nFirstLayer].refCount++;
+        new_entry->pAddr = pEntry;
+    }
     else{
         int nTargetLayer = nFirstLayer;
         if(HASH_TABLE[nFirstLayer].refCount > HASH_LIMIT){
-
             if(HASH_TABLE[nFirstLayer].ref_to == -1){
-                // printf("%d update from %d ", nFirstLayer, HASH_TABLE[nFirstLayer].ref_to);
-                HASH_TABLE[nFirstLayer].ref_to = find_next_avilable_before(nFirstLayer);
-                // printf("to %d %s \n", HASH_TABLE[nFirstLayer].ref_to, str);
+                SET_HASH_REF_TO(nFirstLayer);
             }
-            nTargetLayer = HASH_TABLE[nFirstLayer].ref_to;
+            nTargetLayer = GET_HASH_REF_TO(nFirstLayer);
         }
-
-        HASH_ENTRY *new_node = (HASH_ENTRY *) malloc(sizeof(HASH_ENTRY));
-        new_node->pNext = HASH_TABLE[nTargetLayer].pNext;
-        strcpy(new_node->Name, str);
-        HASH_TABLE[nTargetLayer].pNext = new_node;
+        HASH_ENTRY *new_entry = (HASH_ENTRY *) malloc(sizeof(HASH_ENTRY));
+        new_entry->pNext = HASH_TABLE[nTargetLayer].pNext;
+        strcpy(new_entry->Name, pEntry->lastName);
+        HASH_TABLE[nTargetLayer].pNext = new_entry;
         HASH_TABLE[nTargetLayer].refCount++;
+        new_entry->pAddr = pEntry;
     }
 }
+
 
 
 void show_hash_table()

@@ -37,15 +37,15 @@ typedef struct __HASH_ENTRY {
     unsigned short refCount;
     short ref_to;
     struct __HASH_ENTRY *pNext;
-    struct __HASH_ENTRY *pAddr;
+    entry* pAddr;
 } HASH_ENTRY;
 
 
-
+entry* FIND_FROM_HASH_TABLE(char *str);
 int HASH_FUNCTION_TO_INT(char* str);
 int HASH_FUNCTION_FROM_STR_TO_INT(char* str);
 int find_next_avilable_before(int nLast);
-void UPDATE_HASH_TABLE(char *str);
+void UPDATE_HASH_TABLE(entry* pEntry);
 void show_hash_table();
 void INIT_HASH_TABLE();
 
