@@ -9,7 +9,7 @@
 #define DICT_FILE "./dictionary/words.txt"
 #define MAX_LAST_NAME_SIZE 16
 #define HASH_LIMIT 128
-
+#define BUCKET_SIZE 64
 
 /* TODO: After modifying the original version, uncomment the following
  * line to set OPT properly */
@@ -41,11 +41,38 @@ typedef struct __HASH_ENTRY {
 } HASH_ENTRY;
 
 
+<<<<<<< d20a18aef03f76698befd54a4d4916a44ed3304f
 entry* FIND_FROM_HASH_TABLE(char *str);
 int HASH_FUNCTION_TO_INT(char* str);
 int HASH_FUNCTION_FROM_STR_TO_INT(char* str);
 int find_next_avilable_before(int nLast);
 void UPDATE_HASH_TABLE(entry* pEntry);
+=======
+typedef struct __HASH_ENTRY_NEW {
+    unsigned  nUsed;
+    unsigned  nIdxLast;
+    entry* ADDR[BUCKET_SIZE];    
+    entry* pPeek;
+    struct __HASH_ENTRY_NEW *pNext;
+} HASH_ENTRY_NEW;
+
+void   NEW_UPDATE_HASH_TABLE(entry* pEntry);
+entry* NEW_FIND_FROM_HASH_TABLE(char *str);
+void NEW_INIT_HASH_TABLE();
+void case_new_hash_pointer(entry* pEntry);
+void case_new_hash_node(entry* pEntry);
+
+
+void UPDATE_HASH_TABLE(entry* pEntry);
+entry* FIND_FROM_HASH_TABLE(char *str);
+
+void UPDATE_HASH_TABLE(entry* pEntry);
+entry* FIND_FROM_HASH_TABLE(char *str);
+
+int HASH_FUNCTION_TO_INT(char* str);
+int HASH_FUNCTION_FROM_STR_TO_INT(char* str);
+int find_next_avilable_before(int nLast);
+>>>>>>> add new hash to test
 void show_hash_table();
 void INIT_HASH_TABLE();
 
